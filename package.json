@@ -1,0 +1,55 @@
+{
+  "name": "diskstore",
+  "version": "1.0.0",
+  "description": "a local cache implement",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "autod": "autod --check",
+    "pkgfiles": "egg-bin pkgfiles --check",
+    "lint": "eslint --ext .js .",
+    "test": "npm run lint && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run autod && npm run pkgfiles && npm run lint && npm run cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-modules/diskstore.git"
+  },
+  "keywords": [
+    "cache",
+    "file",
+    "store"
+  ],
+  "author": "gxcsoccer <gxcsoccer@126.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/node-modules/diskstore/issues"
+  },
+  "homepage": "https://github.com/node-modules/diskstore#readme",
+  "dependencies": {
+    "mz": "^2.7.0",
+    "mz-modules": "^2.0.0",
+    "sdk-base": "^3.3.0",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "autod": "^2.10.1",
+    "co": "^4.6.0",
+    "coffee": "^4.1.0",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "eslint": "^4.9.0",
+    "eslint-config-egg": "^5.1.1",
+    "mm": "^2.2.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
+  "ci": {
+    "version": "6, 8"
+  }
+}
