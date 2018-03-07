@@ -49,6 +49,7 @@ $ npm install diskstore --save
 const diskStore = new DiskStore({
   cacheDir: '/path/cache',
 });
+
 yield diskStore.set('a/b/c', 'c');
 let data = yield diskStore.get('a/b/c');
 assert.deepEqual(data, new Buffer('c'));
