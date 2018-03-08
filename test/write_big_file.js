@@ -1,19 +1,18 @@
 'use strict';
 
-const co = require('co');
 const path = require('path');
 const DiskStore = require('../');
 const cacheDir = path.join(__dirname, 'tmp');
 
 const store = new DiskStore({ cacheDir });
 
-co(function* () {
-
+const write = async function() {
   console.time('write');
-  yield store.set('big.bin', new Buffer(50 * 1024 * 1024));
+  await store.set('big.bin', new Buffer(50 * 1024 * 1024));
   console.timeEnd('write');
+};
 
-}).catch(err => {
+write().catch(err => {
   console.error(err);
 });
 
