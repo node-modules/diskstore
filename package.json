@@ -7,6 +7,7 @@
     "lib"
   ],
   "scripts": {
+    "contributor": "git-contributor",
     "autod": "autod --check",
     "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint --ext .js .",
@@ -43,6 +44,7 @@
     "egg-ci": "^1.19.0",
     "eslint": "^8.16.0",
     "eslint-config-egg": "^11.1.0",
+    "git-contributor": "^1.1.0",
     "mm": "^3.2.0"
   },
   "engines": {
