@@ -11,7 +11,7 @@
     "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint --ext .js .",
     "test": "npm run lint && npm run test-local",
-    "test-local": "egg-bin test",
+    "test-local": "egg-bin test --full-trace",
     "cov": "egg-bin cov",
     "ci": "npm run autod && npm run pkgfiles && npm run lint && npm run cov"
   },

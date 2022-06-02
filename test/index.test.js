@@ -70,6 +70,17 @@ describe('test/index.test.js', () => {
     assert(files.length === 0);
   });
 
+  it('should make sure tmpdir exists on every set', async function() {
+    await diskStore.set('a-foo', 'a foo');
+    let data = await diskStore.get('a-foo');
+    assert.deepEqual(data, Buffer.from('a foo'));
+
+    await rimraf(diskStore.tmpdir);
+    await diskStore.set('a-foo', 'a foo bar');
+    data = await diskStore.get('a-foo');
+    assert.deepEqual(data, Buffer.from('a foo bar'));
+  });
+
   describe('write atomic', () => {
     it('should write be atomic', async function() {
       await coffee.fork('write_big_file.js', [])
