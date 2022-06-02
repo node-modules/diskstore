@@ -50,7 +50,6 @@
   },
   "ci": {
     "type": "github",
-    "os": "linux",
     "version": "12, 14, 16, 18"
   }
 }
