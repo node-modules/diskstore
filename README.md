@@ -2,22 +2,13 @@
 a basic local cache implementation
 
 [![NPM version][npm-image]][npm-url]
-[![build status][travis-image]][travis-url]
 [![Test coverage][codecov-image]][codecov-url]
-[![David deps][david-image]][david-url]
-[![Known Vulnerabilities][snyk-image]][snyk-url]
 [![npm download][download-image]][download-url]
 
 [npm-image]: https://img.shields.io/npm/v/diskstore.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/diskstore
-[travis-image]: https://img.shields.io/travis/node-modules/diskstore.svg?style=flat-square
-[travis-url]: https://travis-ci.org/node-modules/diskstore
 [codecov-image]: https://codecov.io/gh/node-modules/diskstore/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/node-modules/diskstore
-[david-image]: https://img.shields.io/david/node-modules/diskstore.svg?style=flat-square
-[david-url]: https://david-dm.org/node-modules/diskstore
-[snyk-image]: https://snyk.io/test/npm/diskstore/badge.svg?style=flat-square
-[snyk-url]: https://snyk.io/test/npm/diskstore
 [download-image]: https://img.shields.io/npm/dm/diskstore.svg?style=flat-square
 [download-url]: https://npmjs.org/package/diskstore
 
@@ -35,12 +26,12 @@ $ npm install diskstore --save
 
 - `new DiskStore(options)`
   - {String} cacheDir - root cache dir
-- `* get(relativePath)` read data from relativePath if the file exists.
+- `async get(relativePath)` read data from relativePath if the file exists.
   - {String} relativePath - file path relative to root cache dir
-- `* set(relativePath, data)` write data to relativePath
+- `async set(relativePath, data)` write data to relativePath
   - {String} relativePath - file path relative to root cache dir
   - {Buffer|String} data - the data
-- `* delete(relativePath)` delete the file
+- `async delete(relativePath)` delete the file
   - {String} relativePath - file path relative to root cache dir
 
 ## Usage
@@ -50,12 +41,12 @@ const diskStore = new DiskStore({
   cacheDir: '/path/cache',
 });
 
-yield diskStore.set('a/b/c', 'c');
-let data = yield diskStore.get('a/b/c');
-assert.deepEqual(data, new Buffer('c'));
+await diskStore.set('a/b/c', 'c');
+let data = await diskStore.get('a/b/c');
+assert.deepEqual(data, Buffer.from('c'));
 
-yield diskStore.delete('a/b/c');
-data = yield diskStore.get('a/b/c');
+await diskStore.delete('a/b/c');
+data = await diskStore.get('a/b/c');
 assert(data === null);
 ```
 
