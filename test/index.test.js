@@ -6,7 +6,7 @@ const path = require('path');
 const assert = require('assert');
 const coffee = require('coffee');
 const rimraf = require('mz-modules/rimraf');
-const DiskStore = require('../lib');
+const DiskStore = require('..');
 
 const cacheDir = path.join(__dirname, 'tmp');
 
@@ -27,13 +27,13 @@ describe('test/index.test.js', () => {
   it('should provide cacheDir', () => {
     assert.throws(() => {
       new DiskStore();
-    }, '[DiskStore] options.cacheDir is required');
+    }, /\[DiskStore] options\.cacheDir is required/);
   });
 
   it('should set & get & delete ok', async function() {
     await diskStore.set('a', 'a');
     let data = await diskStore.get('a');
-    assert.deepEqual(data, new Buffer('a'));
+    assert.deepEqual(data, Buffer.from('a'));
 
     await diskStore.delete('a');
     data = await diskStore.get('a');
@@ -41,7 +41,7 @@ describe('test/index.test.js', () => {
   });
 
   it('should support multi-level folder', async function() {
-    const buf = new Buffer('hello world');
+    const buf = Buffer.from('hello world');
     await diskStore.set('a/b/c', buf);
     let data = await diskStore.get('a/b/c');
     assert.deepEqual(data, buf);
@@ -54,7 +54,7 @@ describe('test/index.test.js', () => {
   it('should rm tmpfile anyway', async function() {
     await diskStore.set('abc', 'a');
     let data = await diskStore.get('abc');
-    assert.deepEqual(data, new Buffer('a'));
+    assert.deepEqual(data, Buffer.from('a'));
     mm(fs, 'rename', () => {
       return Promise.reject(new Error('mock error'));
     });
@@ -65,9 +65,20 @@ describe('test/index.test.js', () => {
       assert(err.message === 'mock error');
     }
     data = await diskStore.get('abc');
-    assert.deepEqual(data, new Buffer('a'));
+    assert.deepEqual(data, Buffer.from('a'));
     const files = await fs.readdir(path.join(cacheDir, '.tmp'));
     assert(files.length === 0);
+  });
+
+  it('should make sure tmpdir exists on every set', async function() {
+    await diskStore.set('a-foo', 'a foo');
+    let data = await diskStore.get('a-foo');
+    assert.deepEqual(data, Buffer.from('a foo'));
+
+    await rimraf(diskStore.tmpdir);
+    await diskStore.set('a-foo', 'a foo bar');
+    data = await diskStore.get('a-foo');
+    assert.deepEqual(data, Buffer.from('a foo bar'));
   });
 
   describe('write atomic', () => {
