@@ -1,11 +1,8 @@
-'use strict';
-
 const mm = require('mm');
-const fs = require('mz/fs');
+const fs = require('fs/promises');
 const path = require('path');
 const assert = require('assert');
 const coffee = require('coffee');
-const rimraf = require('mz-modules/rimraf');
 const DiskStore = require('..');
 
 const cacheDir = path.join(__dirname, 'tmp');
@@ -13,7 +10,7 @@ const cacheDir = path.join(__dirname, 'tmp');
 describe('test/index.test.js', () => {
   let diskStore;
   before(async function() {
-    await rimraf(cacheDir);
+    await fs.rm(cacheDir, { force: true, recursive: true });
     diskStore = new DiskStore({
       cacheDir,
     });
@@ -21,7 +18,7 @@ describe('test/index.test.js', () => {
   });
   afterEach(mm.restore);
   after(async function() {
-    await rimraf(cacheDir);
+    await fs.rm(cacheDir, { force: true, recursive: true });
   });
 
   it('should provide cacheDir', () => {
@@ -75,7 +72,7 @@ describe('test/index.test.js', () => {
     let data = await diskStore.get('a-foo');
     assert.deepEqual(data, Buffer.from('a foo'));
 
-    await rimraf(diskStore.tmpdir);
+    await fs.rm(diskStore.tmpdir, { recursive: true });
     await diskStore.set('a-foo', 'a foo bar');
     data = await diskStore.get('a-foo');
     assert.deepEqual(data, Buffer.from('a foo bar'));
@@ -87,8 +84,12 @@ describe('test/index.test.js', () => {
         .expect('code', 1)
         .end();
 
-      const isExists = await fs.exists(path.join(cacheDir, 'big.bin'));
-      assert(!isExists);
+      try {
+        await fs.stat(path.join(cacheDir, 'big.bin'));
+        throw new Error('should not run this');
+      } catch (err) {
+        assert(err.code === 'ENOENT');
+      }
     });
   });
 });
