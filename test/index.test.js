@@ -1,5 +1,3 @@
-'use strict';
-
 const mm = require('mm');
 const fs = require('fs/promises');
 const path = require('path');

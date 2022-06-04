@@ -1,4 +1,5 @@
 # diskstore
+
 a basic local cache implementation
 
 [![NPM version][npm-image]][npm-url]
@@ -20,7 +21,7 @@ A basic file cache implementation. It just providers low-level APIs (get, set, d
 ## Install
 
 ```bash
-$ npm install diskstore --save
+npm install diskstore --save
 ```
 
 ## APIs
@@ -54,13 +55,13 @@ assert(data === null);
 ## License
 
 [MIT](LICENSE)
+
 <!-- GITCONTRIBUTOR_START -->
 
 ## Contributors
 
 |[<img src="https://avatars.githubusercontent.com/u/546535?v=4" width="100px;"/><br/><sub><b>leoner</b></sub>](https://github.com/leoner)<br/>|[<img src="https://avatars.githubusercontent.com/u/1207064?v=4" width="100px;"/><br/><sub><b>gxcsoccer</b></sub>](https://github.com/gxcsoccer)<br/>|[<img src="https://avatars.githubusercontent.com/u/156269?v=4" width="100px;"/><br/><sub><b>fengmk2</b></sub>](https://github.com/fengmk2)<br/>|
 | :---: | :---: | :---: |
-
 
 This project follows the git-contributor [spec](https://github.com/xudafeng/git-contributor), auto updated at `Thu Jun 02 2022 15:25:27 GMT+0800`.
 
