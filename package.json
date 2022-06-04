@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "coffee": "^5.4.0",
-    "egg-bin": "5",
+    "egg-bin": "^5.1.0",
     "egg-ci": "2",
     "eslint": "^8.16.0",
     "eslint-config-egg": "12",
