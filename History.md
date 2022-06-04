@@ -1,4 +1,11 @@
 
+3.0.0 / 2022-06-04
+==================
+
+**others**
+  * [[`bd22d51`](http://github.com/node-modules/diskstore/commit/bd22d511852022031139c5a3f5ce661dc05cbbf1)] - 📦 NEW: [BREAKING] Only support Node.js >= 14 (#4) (fengmk2 <<fengmk2@gmail.com>>)
+  * [[`04128e8`](http://github.com/node-modules/diskstore/commit/04128e80e300b51f49c6ee23a71a82a177180cee)] - Create codeql-analysis.yml (fengmk2 <<fengmk2@gmail.com>>)
+
 2.1.0 / 2022-06-02
 ==================
 
