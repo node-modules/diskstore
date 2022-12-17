@@ -8,12 +8,11 @@
   ],
   "scripts": {
     "contributor": "git-contributor",
-    "pkgfiles": "egg-bin pkgfiles --check",
     "lint": "eslint --ext .js . --fix",
     "test": "npm run lint && npm run test-local",
     "test-local": "egg-bin test",
     "cov": "egg-bin cov",
-    "ci": "npm run pkgfiles && npm run lint && npm run cov"
+    "ci": "npm run lint && npm run cov"
   },
   "repository": {
     "type": "git",
@@ -31,12 +30,11 @@
   },
   "homepage": "https://github.com/node-modules/diskstore#readme",
   "dependencies": {
-    "sdk-base": "^3.6.0"
+    "sdk-base": "^4.2.0"
   },
   "devDependencies": {
     "coffee": "^5.4.0",
     "egg-bin": "^5.1.0",
-    "egg-ci": "2",
     "eslint": "^8.16.0",
     "eslint-config-egg": "12",
     "git-contributor": "^1.1.0",
@@ -44,8 +42,5 @@
   },
   "engines": {
     "node": ">= 14.0.0"
-  },
-  "ci": {
-    "version": "14, 16, 18"
   }
 }
