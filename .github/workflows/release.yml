@@ -1,19 +1,81 @@
 name: Release
 
+# 手动触发发布，通过 npm OIDC trusted publishing 发布（无需 NPM_TOKEN）
 on:
-  # 合并后自动发布
-  push:
-    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: 'Dry run (do not publish or push)'
+        required: false
+        default: false
+        type: boolean
 
-  # 手动发布
-  workflow_dispatch: {}
+permissions:
+  contents: write   # push the version bump commit + tag, create the GitHub release
+  id-token: write   # npm OIDC trusted publishing
 
 jobs:
   release:
-    name: Node.js
-    uses: artusjs/github-actions/.github/workflows/node-release.yml@v1
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-    with:
-      checkTest: false
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      # OIDC trusted publishing requires npm >= 11.5.1
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm i --no-package-lock --no-fund
+
+      - name: Test
+        run: npm test
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Version bump
+        id: bump
+        run: |
+          npm version ${{ github.event.inputs.version_type }} -m "Release v%s"
+          echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish (dry run)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: npm publish --provenance --dry-run
+
+      # Publish before pushing: if publish fails, nothing is pushed and the
+      # run can be retried cleanly without a double version bump.
+      - name: Publish
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: npm publish --provenance
+
+      - name: Push commit and tag
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: git push origin HEAD --follow-tags
+
+      - name: Create GitHub Release
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: gh release create "${{ steps.bump.outputs.tag }}" --verify-tag --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
