@@ -28,6 +28,8 @@ npm install diskstore --save
 
 - `new DiskStore(options)`
   - {String} cacheDir - root cache dir
+  - {Boolean} [fallback=true] - when the internal `rename` fails with `EXDEV` (the `.tmp` dir and the target file are on different filesystems), retry by writing a temp file in the target file's own directory and rename it there, which stays atomic. Set to `false` to let the `EXDEV` error throw.
+  - {String} [fallbackTmpfileName] - the temp file name used by the fallback, placed in the target file's directory. Defaults to a random name. A fixed name is only safe when concurrent writes to the same directory cannot happen; otherwise keep the default so each write gets a unique temp file.
 - `async get(relativePath)` read data from relativePath if the file exists.
   - {String} relativePath - file path relative to root cache dir
 - `async set(relativePath, data)` write data to relativePath

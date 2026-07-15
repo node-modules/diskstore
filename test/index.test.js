@@ -78,6 +78,99 @@ describe('test/index.test.js', () => {
     assert.deepEqual(data, Buffer.from('a foo bar'));
   });
 
+  describe('EXDEV fallback', () => {
+    // simulate .tmp being on a different device than the target: rename from .tmp
+    // throws EXDEV, everything else falls through to the real rename
+    function mockCrossDevice() {
+      const originRename = fs.rename;
+      mm(fs, 'rename', async (src, dest) => {
+        if (src.includes(`${path.sep}.tmp${path.sep}`)) {
+          const err = new Error('EXDEV: cross-device link not permitted');
+          err.code = 'EXDEV';
+          throw err;
+        }
+        return originRename(src, dest);
+      });
+    }
+
+    it('should fallback to same-dir write when rename is cross-device', async function() {
+      mockCrossDevice();
+      await diskStore.set('exdev/a', 'exdev value');
+      const data = await diskStore.get('exdev/a');
+      assert.deepEqual(data, Buffer.from('exdev value'));
+      // the fallback temp file should be cleaned up, nothing left in the dir
+      const files = await fs.readdir(path.join(cacheDir, 'exdev'));
+      assert.deepEqual(files, [ 'a' ]);
+    });
+
+    it('should use custom fallbackTmpfileName', async function() {
+      const store = new DiskStore({
+        cacheDir,
+        fallbackTmpfileName: '.custom.fallback.tmp',
+      });
+      await store.ready();
+      // record the source of the same-dir (fallback) rename to prove the custom name is used
+      const renamed = [];
+      const originRename = fs.rename;
+      mm(fs, 'rename', async (src, dest) => {
+        if (src.includes(`${path.sep}.tmp${path.sep}`)) {
+          const err = new Error('EXDEV: cross-device link not permitted');
+          err.code = 'EXDEV';
+          throw err;
+        }
+        renamed.push(src);
+        return originRename(src, dest);
+      });
+      await store.set('exdev-custom', 'v');
+      const data = await store.get('exdev-custom');
+      assert.deepEqual(data, Buffer.from('v'));
+      assert.deepEqual(renamed, [ path.join(cacheDir, '.custom.fallback.tmp') ]);
+      // the fallback temp file is removed once used
+      assert(await store.get('.custom.fallback.tmp') === null);
+    });
+
+    it('should clean up and throw when the fallback rename also fails', async function() {
+      mm(fs, 'rename', async src => {
+        if (src.includes(`${path.sep}.tmp${path.sep}`)) {
+          const err = new Error('EXDEV: cross-device link not permitted');
+          err.code = 'EXDEV';
+          throw err;
+        }
+        // the fallback (same-dir) rename fails too
+        throw new Error('mock fallback rename error');
+      });
+      try {
+        await diskStore.set('exdev-fail/a', 'v');
+        assert(false, 'should not run here');
+      } catch (err) {
+        assert(err.message === 'mock fallback rename error');
+      }
+      // both the primary and the fallback temp files should be cleaned up
+      const files = await fs.readdir(path.join(cacheDir, 'exdev-fail'));
+      assert(files.length === 0);
+      const tmpFiles = await fs.readdir(path.join(cacheDir, '.tmp'));
+      assert(tmpFiles.length === 0);
+    });
+
+    it('should throw EXDEV when fallback disabled', async function() {
+      const store = new DiskStore({
+        cacheDir,
+        fallback: false,
+      });
+      await store.ready();
+      mockCrossDevice();
+      try {
+        await store.set('exdev-off', 'v');
+        assert(false, 'should not run here');
+      } catch (err) {
+        assert(err.code === 'EXDEV');
+      }
+      // the primary temp file should still be cleaned up
+      const files = await fs.readdir(path.join(cacheDir, '.tmp'));
+      assert(files.length === 0);
+    });
+  });
+
   describe('write atomic', () => {
     it('should write be atomic', async function() {
       await coffee.fork('write_big_file.js', [])
